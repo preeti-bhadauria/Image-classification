@@ -104,7 +104,8 @@ def plot_sample(X, y, index):
     plt.axis("off")
     plt.title(f"True: {y[index]} | Pred: {y_pred[index]}")
     plt.show()
-#Data augmentation improved generalization and reduced overfitting by exposing the model to diverse spatial variations
+    
+# Data augmentation improved generalization and reduced overfitting by exposing the model to diverse spatial variations
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 datagen = ImageDataGenerator(
     rotation_range=20,
@@ -115,7 +116,7 @@ datagen = ImageDataGenerator(
 )
 
 datagen.fit(X_train)
-#build model
+# build model
 cnn_aug = Sequential([
     Conv2D(32, (3,3), activation='relu', input_shape=(128,128,3)),
     MaxPooling2D(2,2),
@@ -137,7 +138,7 @@ cnn_aug.compile(
     loss='binary_crossentropy',
     metrics=['accuracy']
 )
-#train
+# train
 batch_x, batch_y = next(datagen.flow(X_train, y_train, batch_size=8))
 
 print("Augmented batch X shape:", batch_x.shape)
