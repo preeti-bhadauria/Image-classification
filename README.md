@@ -104,3 +104,48 @@ def plot_sample(X, y, index):
     plt.axis("off")
     plt.title(f"True: {y[index]} | Pred: {y_pred[index]}")
     plt.show()
+#Data augmentation improved generalization and reduced overfitting by exposing the model to diverse spatial variations
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+datagen = ImageDataGenerator(
+    rotation_range=20,
+    zoom_range=0.2,
+    width_shift_range=0.2,
+    height_shift_range=0.2,
+    horizontal_flip=True
+)
+
+datagen.fit(X_train)
+#build model
+cnn_aug = Sequential([
+    Conv2D(32, (3,3), activation='relu', input_shape=(128,128,3)),
+    MaxPooling2D(2,2),
+
+    Conv2D(64, (3,3), activation='relu'),
+    MaxPooling2D(2,2),
+
+    Conv2D(128, (3,3), activation='relu'),
+    MaxPooling2D(2,2),
+
+    Flatten(),
+    Dense(128, activation='relu'),
+    Dropout(0.5),
+    Dense(1, activation='sigmoid')
+])
+
+cnn_aug.compile(
+    optimizer='adam',
+    loss='binary_crossentropy',
+    metrics=['accuracy']
+)
+#train
+batch_x, batch_y = next(datagen.flow(X_train, y_train, batch_size=8))
+
+print("Augmented batch X shape:", batch_x.shape)
+print("Augmented batch y shape:", batch_y.shape)
+
+history_aug = cnn_aug.fit(
+    datagen.flow(X_train, y_train, batch_size=8),
+    validation_data=(X_test, y_test),
+    epochs=20,
+    callbacks=[early_stop]
+)
